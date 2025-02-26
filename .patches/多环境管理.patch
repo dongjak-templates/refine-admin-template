@@ -1,0 +1,366 @@
+Subject: [PATCH] ✨ feat(src/common): 添加环境变量配置和模块入口文件以统一管理环境设置
+---
+Index: src/common/index.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/common/index.ts b/src/common/index.ts
+new file mode 100644
+--- /dev/null	(date 1740597017594)
++++ b/src/common/index.ts	(date 1740597017594)
+@@ -0,0 +1,4 @@
++/**
++ * 配置模块入口文件
++ */
++export * from './env';
+\ No newline at end of file
+Index: src/common/env.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/common/env.ts b/src/common/env.ts
+new file mode 100644
+--- /dev/null	(date 1740596489758)
++++ b/src/common/env.ts	(date 1740596489758)
+@@ -0,0 +1,32 @@
++/**
++ * 环境变量配置
++ * 所有环境变量都应该在这里定义，以便统一管理
++ */
++
++// 应用标题
++export const APP_TITLE = import.meta.env.VITE_APP_TITLE || 'Refine Admin';
++
++// API基础URL
++export const API_URL = import.meta.env.VITE_API_URL || 'https://api.fake-rest.refine.dev';
++
++// 当前环境
++export const APP_ENV = import.meta.env.VITE_APP_ENV || 'development';
++
++// 判断是否为开发环境
++export const IS_DEV = APP_ENV === 'development';
++
++// 判断是否为生产环境
++export const IS_PROD = APP_ENV === 'production';
++
++// 判断是否为测试环境
++export const IS_TEST = APP_ENV === 'test';
++
++// 导出默认配置对象
++export default {
++  APP_TITLE,
++  API_URL,
++  APP_ENV,
++  IS_DEV,
++  IS_PROD,
++  IS_TEST
++}; 
+\ No newline at end of file
+Index: src/App.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/App.tsx b/src/App.tsx
+--- a/src/App.tsx	(revision b178329967f429a1ce61e7da266a2549a7d9b28b)
++++ b/src/App.tsx	(date 1740597231870)
+@@ -1,6 +1,6 @@
+-import {Authenticated, GitHubBanner, Refine} from "@refinedev/core";
+-import {DevtoolsPanel, DevtoolsProvider} from "@refinedev/devtools";
+-import {RefineKbar, RefineKbarProvider} from "@refinedev/kbar";
++import { Authenticated, GitHubBanner, Refine } from "@refinedev/core";
++import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
++import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
+ 
+ import {
+     ErrorComponent,
+@@ -17,11 +17,11 @@
+     UnsavedChangesNotifier,
+ } from "@refinedev/react-router";
+ import dataProvider from "@refinedev/simple-rest";
+-import {App as AntdApp} from "antd";
+-import {BrowserRouter, Outlet, Route, Routes} from "react-router";
+-import {authProvider} from "@/authProvider";
+-import {AppIcon, Header} from "@/common/components";
+-import {ColorModeContextProvider} from "@/common/contexts";
++import { App as AntdApp } from "antd";
++import { BrowserRouter, Outlet, Route, Routes } from "react-router";
++import { authProvider } from "@/authProvider";
++import { AppIcon, Header } from "@/common/components";
++import { ColorModeContextProvider } from "@/common/contexts";
+ import {
+     BlogPostCreate,
+     BlogPostEdit,
+@@ -34,7 +34,8 @@
+     CategoryList,
+     CategoryShow,
+ } from "@/blog/category/pages";
+-import {Login, Register, ForgotPassword} from "@/user/pages";
++import { Login, Register, ForgotPassword } from "@/user/pages";
++import { API_URL, APP_TITLE } from "@/common/env";
+ 
+ function App() {
+     return (
+@@ -44,9 +45,9 @@
+                     <AntdApp>
+                         <DevtoolsProvider>
+                             <Refine
+-                                dataProvider={dataProvider("https://api.fake-rest.refine.dev")}
++                                dataProvider={dataProvider(API_URL)}
+                                 notificationProvider={useNotificationProvider}
+-                                authProvider={authProvider}
++                                // authProvider={authProvider}
+                                 routerProvider={routerBindings}
+                                 resources={[
+                                     {
+@@ -68,14 +69,14 @@
+                                         meta: {
+                                             canDelete: true,
+                                         },
+-                                    },
++                                    }
+                                 ]}
+                                 options={{
+                                     syncWithLocation: true,
+                                     warnWhenUnsavedChanges: true,
+                                     useNewQueryKeys: true,
+                                     projectId: "RUkgr3-hlbLLB-lUpTgX",
+-                                    title: {text: "Refine Project", icon: <AppIcon/>},
++                                    title: { text: APP_TITLE, icon: <AppIcon /> },
+                                 }}
+                             >
+                                 <Routes>
+@@ -83,59 +84,59 @@
+                                         element={
+                                             <Authenticated
+                                                 key="authenticated-inner"
+-                                                fallback={<CatchAllNavigate to="/login"/>}
++                                                fallback={<CatchAllNavigate to="/login" />}
+                                             >
+                                                 <ThemedLayoutV2
+                                                     Header={Header}
+-                                                    Sider={(props) => <ThemedSiderV2 {...props} fixed/>}
++                                                    Sider={(props) => <ThemedSiderV2 {...props} fixed />}
+                                                 >
+-                                                    <Outlet/>
++                                                    <Outlet />
+                                                 </ThemedLayoutV2>
+                                             </Authenticated>
+                                         }
+                                     >
+                                         <Route
+                                             index
+-                                            element={<NavigateToResource resource="blog_posts"/>}
++                                            element={<NavigateToResource resource="blog_posts" />}
+                                         />
+                                         <Route path="/blog-posts">
+-                                            <Route index element={<BlogPostList/>}/>
+-                                            <Route path="create" element={<BlogPostCreate/>}/>
+-                                            <Route path="edit/:id" element={<BlogPostEdit/>}/>
+-                                            <Route path="show/:id" element={<BlogPostShow/>}/>
++                                            <Route index element={<BlogPostList />} />
++                                            <Route path="create" element={<BlogPostCreate />} />
++                                            <Route path="edit/:id" element={<BlogPostEdit />} />
++                                            <Route path="show/:id" element={<BlogPostShow />} />
+                                         </Route>
+                                         <Route path="/categories">
+-                                            <Route index element={<CategoryList/>}/>
+-                                            <Route path="create" element={<CategoryCreate/>}/>
+-                                            <Route path="edit/:id" element={<CategoryEdit/>}/>
+-                                            <Route path="show/:id" element={<CategoryShow/>}/>
++                                            <Route index element={<CategoryList />} />
++                                            <Route path="create" element={<CategoryCreate />} />
++                                            <Route path="edit/:id" element={<CategoryEdit />} />
++                                            <Route path="show/:id" element={<CategoryShow />} />
+                                         </Route>
+-                                        <Route path="*" element={<ErrorComponent/>}/>
++                                        <Route path="*" element={<ErrorComponent />} />
+                                     </Route>
+                                     <Route
+                                         element={
+                                             <Authenticated
+                                                 key="authenticated-outer"
+-                                                fallback={<Outlet/>}
++                                                fallback={<Outlet />}
+                                             >
+-                                                <NavigateToResource/>
++                                                <NavigateToResource />
+                                             </Authenticated>
+                                         }
+                                     >
+-                                        <Route path="/login" element={<Login/>}/>
+-                                        <Route path="/register" element={<Register/>}/>
++                                        <Route path="/login" element={<Login />} />
++                                        <Route path="/register" element={<Register />} />
+                                         <Route
+                                             path="/forgot-password"
+-                                            element={<ForgotPassword/>}
++                                            element={<ForgotPassword />}
+                                         />
+                                     </Route>
+                                 </Routes>
+ 
+-                                <RefineKbar/>
+-                                <UnsavedChangesNotifier/>
+-                                <DocumentTitleHandler/>
++                                <RefineKbar />
++                                <UnsavedChangesNotifier />
++                                <DocumentTitleHandler />
+                             </Refine>
+-                            <DevtoolsPanel/>
++                            <DevtoolsPanel />
+                         </DevtoolsProvider>
+                     </AntdApp>
+                 </ColorModeContextProvider>
+Index: package.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/package.json b/package.json
+--- a/package.json	(revision b178329967f429a1ce61e7da266a2549a7d9b28b)
++++ b/package.json	(date 1740596653403)
+@@ -28,7 +28,11 @@
+   },
+   "scripts": {
+     "dev": "refine dev",
++    "dev:test": "refine dev --mode test",
++    "dev:prod": "refine dev --mode production",
+     "build": "tsc && refine build",
++    "build:test": "tsc && refine build --mode test",
++    "build:prod": "tsc && refine build --mode production",
+     "start": "refine start",
+     "refine": "refine",
+     "compile": "tsc --noEmit"
+Index: tsconfig.node.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tsconfig.node.json b/tsconfig.node.json
+--- a/tsconfig.node.json	(revision b178329967f429a1ce61e7da266a2549a7d9b28b)
++++ b/tsconfig.node.json	(date 1740596786975)
+@@ -2,7 +2,8 @@
+   "compilerOptions": {
+     "composite": true,
+     "module": "ESNext",
+-    "moduleResolution": "node"
++    "moduleResolution": "node",
++    "allowSyntheticDefaultImports": true
+   },
+   "include": ["vite.config.ts"]
+ }
+Index: .env.development
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.env.development b/.env.development
+new file mode 100644
+--- /dev/null	(date 1740596462122)
++++ b/.env.development	(date 1740596462122)
+@@ -0,0 +1,4 @@
++# 开发环境配置
++VITE_APP_TITLE=Refine Admin (开发环境)
++VITE_API_URL=https://api.fake-rest.refine.dev
++VITE_APP_ENV=development 
+\ No newline at end of file
+Index: vite.config.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/vite.config.ts b/vite.config.ts
+--- a/vite.config.ts	(revision b178329967f429a1ce61e7da266a2549a7d9b28b)
++++ b/vite.config.ts	(date 1740596764629)
+@@ -1,12 +1,36 @@
+ import react from "@vitejs/plugin-react";
+-import { defineConfig } from "vite";
++import { defineConfig, loadEnv } from "vite";
+ import path from "path";
+ 
+-export default defineConfig({
+-  plugins: [react()],
+-  resolve: {
+-    alias: {
+-      "@": path.resolve(__dirname, "./src"),
++// https://vitejs.dev/config/
++export default defineConfig(({ command, mode }) => {
++  // 加载环境变量
++  const env = loadEnv(mode, process.cwd(), '');
++  
++  console.log(`Building for ${mode} mode...`);
++  
++  return {
++    plugins: [react()],
++    resolve: {
++      alias: {
++        "@": path.resolve(__dirname, "./src"),
++      },
+     },
+-  },
++    // 定义环境变量替换
++    define: {
++      // 确保环境变量在客户端可用
++      'process.env': env
++    },
++    // 开发服务器配置
++    server: {
++      port: 3000,
++      open: true,
++      cors: true
++    },
++    // 构建配置
++    build: {
++      outDir: 'dist',
++      sourcemap: mode !== 'production'
++    }
++  };
+ });
+Index: .env.production
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.env.production b/.env.production
+new file mode 100644
+--- /dev/null	(date 1740596471195)
++++ b/.env.production	(date 1740596471195)
+@@ -0,0 +1,4 @@
++# 生产环境配置
++VITE_APP_TITLE=Refine Admin
++VITE_API_URL=https://api.production.example.com
++VITE_APP_ENV=production 
+\ No newline at end of file
+Index: .env
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.env b/.env
+new file mode 100644
+--- /dev/null	(date 1740596453297)
++++ b/.env	(date 1740596453297)
+@@ -0,0 +1,4 @@
++# 默认环境配置
++VITE_APP_TITLE=Refine Admin
++VITE_API_URL=https://api.fake-rest.refine.dev
++VITE_APP_ENV=development 
+\ No newline at end of file
+Index: .env.test
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.env.test b/.env.test
+new file mode 100644
+--- /dev/null	(date 1740596478740)
++++ b/.env.test	(date 1740596478740)
+@@ -0,0 +1,4 @@
++# 测试环境配置
++VITE_APP_TITLE=Refine Admin (测试环境)
++VITE_API_URL=https://api.test.example.com
++VITE_APP_ENV=test 
+\ No newline at end of file
