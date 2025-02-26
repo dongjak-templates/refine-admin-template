@@ -19,24 +19,22 @@ import routerBindings, {
 import dataProvider from "@refinedev/simple-rest";
 import {App as AntdApp} from "antd";
 import {BrowserRouter, Outlet, Route, Routes} from "react-router";
-import {authProvider} from "./authProvider";
-import {AppIcon, Header} from "./common/components";
-import {ColorModeContextProvider} from "./contexts/color-mode";
+import {authProvider} from "@/authProvider";
+import {AppIcon, Header} from "@/common/components";
+import {ColorModeContextProvider} from "@/common/contexts";
 import {
     BlogPostCreate,
     BlogPostEdit,
     BlogPostList,
     BlogPostShow,
-} from "./pages/blog-posts";
+} from "@/pages/blog-posts";
 import {
     CategoryCreate,
     CategoryEdit,
     CategoryList,
     CategoryShow,
-} from "./pages/categories";
-import {ForgotPassword} from "./pages/forgotPassword";
-import {Login} from "./pages/login";
-import {Register} from "./pages/register";
+} from "@/pages/categories";
+import {Login, Register, ForgotPassword} from "@/user/pages";
 
 function App() {
     return (
