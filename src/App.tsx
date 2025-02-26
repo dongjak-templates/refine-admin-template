@@ -27,13 +27,13 @@ import {
     BlogPostEdit,
     BlogPostList,
     BlogPostShow,
-} from "@/pages/blog-posts";
+} from "@/blog/posts";
 import {
     CategoryCreate,
     CategoryEdit,
     CategoryList,
     CategoryShow,
-} from "@/pages/categories";
+} from "@/blog/categories";
 import {Login, Register, ForgotPassword} from "@/user/pages";
 
 function App() {
